@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#070b14" />
+    <title>MedHistory — Detail</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="device">
+      <div class="dynamic-island"></div>
+      <div class="home-indicator"></div>
+      <div class="phone">
+      <header class="app-header">
+        <button class="back-btn" id="back">‹</button>
+        <div style="flex:1">
+          <h1 id="part-title">—</h1>
+          <div class="subtitle" id="user-sub">—</div>
+        </div>
+      </header>
+
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="visits">Visits</button>
+        <button class="tab" data-tab="notes">Notes</button>
+        <button class="tab" data-tab="prescriptions">Prescriptions</button>
+        <button class="tab" data-tab="imaging">Imaging &amp; Tests</button>
+      </nav>
+
+      <main class="content" id="entries"></main>
+
+      <button class="fab" id="add-fab" title="Add entry">+</button>
+
+    <!-- Add entry modal -->
+    <div class="modal-backdrop" id="modal-backdrop">
+      <div class="modal">
+        <h2 id="modal-title">New entry</h2>
+        <div class="subtitle" id="modal-subtitle">—</div>
+
+        <form id="entry-form">
+          <div class="field">
+            <label for="e-date">Date</label>
+            <input id="e-date" type="date" required />
+          </div>
+
+          <div class="field">
+            <label for="e-title">Title</label>
+            <input id="e-title" type="text" required placeholder="Short headline" />
+          </div>
+
+          <div class="field">
+            <label for="e-body">Details</label>
+            <textarea id="e-body" required placeholder="What happened, what you noticed, etc."></textarea>
+          </div>
+
+          <!-- Tab-specific extras -->
+          <div class="field" id="field-doctor" style="display:none">
+            <label for="e-doctor">Doctor</label>
+            <input id="e-doctor" type="text" placeholder="e.g. Dr. Park" />
+          </div>
+          <div class="field" id="field-diagnosis" style="display:none">
+            <label for="e-diagnosis">Diagnosis</label>
+            <input id="e-diagnosis" type="text" placeholder="e.g. Patellar tendinopathy" />
+          </div>
+          <div class="field" id="field-prescriber" style="display:none">
+            <label for="e-prescriber">Prescriber</label>
+            <input id="e-prescriber" type="text" placeholder="e.g. Dr. Park" />
+          </div>
+          <div class="field" id="field-duration" style="display:none">
+            <label for="e-duration">Duration</label>
+            <input id="e-duration" type="text" placeholder="e.g. 10 days" />
+          </div>
+          <div class="field" id="field-facility" style="display:none">
+            <label for="e-facility">Facility</label>
+            <input id="e-facility" type="text" placeholder="e.g. Mercy Imaging Center" />
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="cancel" id="cancel-btn">Cancel</button>
+            <button type="submit" class="save">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+      const userId = qs("user");
+      const partId = qs("part");
+      const user = Store.getUser(userId);
+      if (!user || !partId) {
+        window.location.href = "index.html";
+      }
+
+      const partLabel = PART_LABELS[partId] || partId;
+      document.getElementById("part-title").textContent = partLabel;
+      document.getElementById("user-sub").textContent = `${user.name} · History`;
+      document.getElementById("back").addEventListener("click", () => {
+        window.location.href = `body.html?user=${userId}`;
+      });
+
+      let activeTab = "visits";
+
+      const tabs = document.querySelectorAll(".tab");
+      tabs.forEach((t) =>
+        t.addEventListener("click", () => {
+          tabs.forEach((x) => x.classList.remove("active"));
+          t.classList.add("active");
+          activeTab = t.getAttribute("data-tab");
+          renderEntries();
+        }),
+      );
+
+      const emptyStates = {
+        visits: { icon: "🩺", msg: "No doctor visits logged for this area." },
+        notes: { icon: "📝", msg: "No notes yet. Add what you're noticing." },
+        prescriptions: { icon: "💊", msg: "No prescriptions recorded." },
+        imaging: { icon: "🩻", msg: "No imaging or tests logged." },
+      };
+
+      function renderEntries() {
+        const entries = Store.getEntries(userId, partId)[activeTab];
+        const container = document.getElementById("entries");
+        if (!entries || entries.length === 0) {
+          const e = emptyStates[activeTab];
+          container.innerHTML = `
+            <div class="empty">
+              <div class="empty-icon">${e.icon}</div>
+              <div>${e.msg}</div>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = entries
+          .map((en) => {
+            const meta = [];
+            if (en.doctor) meta.push(`<span><strong>Dr.</strong> ${en.doctor}</span>`);
+            if (en.diagnosis) meta.push(`<span><strong>Dx:</strong> ${en.diagnosis}</span>`);
+            if (en.prescriber) meta.push(`<span><strong>Rx by:</strong> ${en.prescriber}</span>`);
+            if (en.duration) meta.push(`<span><strong>Duration:</strong> ${en.duration}</span>`);
+            if (en.facility) meta.push(`<span><strong>At:</strong> ${en.facility}</span>`);
+
+            return `
+              <div class="entry">
+                <div class="entry-header">
+                  <div class="entry-title">${escapeHtml(en.title)}</div>
+                  <div class="entry-date">${formatDate(en.date)}</div>
+                </div>
+                <div class="entry-body">${escapeHtml(en.body)}</div>
+                ${meta.length ? `<div class="entry-meta">${meta.join("")}</div>` : ""}
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      function escapeHtml(s) {
+        return (s || "").replace(/[&<>"']/g, (c) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        }[c]));
+      }
+
+      // ---- Add entry modal ----
+      const backdrop = document.getElementById("modal-backdrop");
+      const form = document.getElementById("entry-form");
+      const cancel = document.getElementById("cancel-btn");
+      const fab = document.getElementById("add-fab");
+      const modalTitle = document.getElementById("modal-title");
+      const modalSub = document.getElementById("modal-subtitle");
+
+      const tabExtras = {
+        visits: ["doctor", "diagnosis"],
+        notes: [],
+        prescriptions: ["prescriber", "duration"],
+        imaging: ["facility"],
+      };
+
+      const tabTitles = {
+        visits: "New visit",
+        notes: "New note",
+        prescriptions: "New prescription",
+        imaging: "New imaging / test",
+      };
+
+      fab.addEventListener("click", () => {
+        form.reset();
+        document.getElementById("e-date").value = todayIso();
+
+        // Toggle extras
+        ["doctor", "diagnosis", "prescriber", "duration", "facility"].forEach((f) => {
+          document.getElementById(`field-${f}`).style.display = "none";
+        });
+        tabExtras[activeTab].forEach((f) => {
+          document.getElementById(`field-${f}`).style.display = "block";
+        });
+
+        modalTitle.textContent = tabTitles[activeTab];
+        modalSub.textContent = `${partLabel} · ${user.name}`;
+        backdrop.classList.add("visible");
+      });
+
+      cancel.addEventListener("click", () => backdrop.classList.remove("visible"));
+      backdrop.addEventListener("click", (e) => {
+        if (e.target === backdrop) backdrop.classList.remove("visible");
+      });
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const entry = {
+          date: document.getElementById("e-date").value,
+          title: document.getElementById("e-title").value.trim(),
+          body: document.getElementById("e-body").value.trim(),
+        };
+        tabExtras[activeTab].forEach((f) => {
+          const val = document.getElementById(`e-${f}`).value.trim();
+          if (val) entry[f] = val;
+        });
+
+        Store.addEntry(userId, partId, activeTab, entry);
+        backdrop.classList.remove("visible");
+        renderEntries();
+      });
+
+      renderEntries();
+    </script>
+  </body>
+</html>

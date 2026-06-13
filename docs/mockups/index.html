@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#070b14" />
+    <title>MedHistory — Profiles</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="device">
+      <div class="dynamic-island"></div>
+      <div class="home-indicator"></div>
+      <div class="phone">
+      <header class="app-header">
+        <div style="flex:1">
+          <h1>MedHistory</h1>
+          <div class="subtitle">Select a profile</div>
+        </div>
+      </header>
+
+      <main class="content">
+        <div class="section-title">Profiles</div>
+        <div class="user-list" id="user-list"></div>
+
+        <button class="btn-primary" id="add-user-btn">+ Add Profile</button>
+      </main>
+
+    <!-- Add user modal -->
+    <div class="modal-backdrop" id="modal-backdrop">
+      <div class="modal">
+        <h2>New profile</h2>
+        <div class="subtitle">Create a medical history profile.</div>
+
+        <form id="user-form">
+          <div class="field">
+            <label for="u-name">Full name</label>
+            <input id="u-name" type="text" required placeholder="e.g. Sam Taylor" />
+          </div>
+
+          <div class="field">
+            <label for="u-dob">Date of birth</label>
+            <input id="u-dob" type="date" required />
+          </div>
+
+          <div class="field">
+            <label for="u-sex">Body outline</label>
+            <select id="u-sex" required>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="cancel" id="cancel-btn">Cancel</button>
+            <button type="submit" class="save">Create</button>
+          </div>
+        </form>
+      </div>
+    </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+      const avatarSvg = (sex) => {
+        // Minimal head+shoulders icon
+        if (sex === "female") {
+          return `
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="7" r="3.2"/>
+              <path d="M5 21c0-4 3-6.5 7-6.5S19 17 19 21"/>
+              <path d="M8.5 6.2c1-2.2 6-2.2 7 0"/>
+            </svg>`;
+        }
+        return `
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="7" r="3.2"/>
+            <path d="M5 21c0-4 3-6.5 7-6.5S19 17 19 21"/>
+          </svg>`;
+      };
+
+      function renderUsers() {
+        Store.load();
+        const list = document.getElementById("user-list");
+        list.innerHTML = "";
+        Store.users.forEach((u) => {
+          const card = document.createElement("div");
+          card.className = "user-card";
+          card.innerHTML = `
+            <div class="avatar">${avatarSvg(u.sex)}</div>
+            <div class="user-info">
+              <div class="user-name">${u.name}</div>
+              <div class="user-meta">Age ${calcAge(u.dob)} · ${u.sex === "female" ? "Female" : "Male"}</div>
+            </div>
+            <div class="chevron">›</div>
+          `;
+          card.addEventListener("click", () => {
+            window.location.href = `body.html?user=${u.id}`;
+          });
+          list.appendChild(card);
+        });
+      }
+
+      const backdrop = document.getElementById("modal-backdrop");
+      const addBtn = document.getElementById("add-user-btn");
+      const cancelBtn = document.getElementById("cancel-btn");
+      const form = document.getElementById("user-form");
+
+      addBtn.addEventListener("click", () => {
+        form.reset();
+        backdrop.classList.add("visible");
+      });
+      cancelBtn.addEventListener("click", () => backdrop.classList.remove("visible"));
+      backdrop.addEventListener("click", (e) => {
+        if (e.target === backdrop) backdrop.classList.remove("visible");
+      });
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = document.getElementById("u-name").value.trim();
+        const dob = document.getElementById("u-dob").value;
+        const sex = document.getElementById("u-sex").value;
+        if (!name || !dob) return;
+        Store.addUser({
+          id: "u" + Date.now(),
+          name,
+          dob,
+          sex,
+        });
+        backdrop.classList.remove("visible");
+        renderUsers();
+      });
+
+      renderUsers();
+    </script>
+  </body>
+</html>
