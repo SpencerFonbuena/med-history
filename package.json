@@ -1,0 +1,16 @@
+{
+  "name": "med-history",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.15.1",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "mobile": "pnpm --filter @med-history/mobile",
+    "core": "pnpm --filter @med-history/core"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

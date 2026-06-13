@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Expo / React Native (for when apps/mobile is set up)
+.expo/
+.expo-shared/
+*.orig.*
+web-build/
+
+# Native
+ios/Pods/
+ios/build/
+android/.gradle/
+android/app/build/
+*.keystore
+!debug.keystore
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
