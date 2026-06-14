@@ -4,6 +4,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTheme } from '@/hooks/useTheme.hook';
 import { profileForm, type ProfileFormValues } from '../schemas/profileForm';
 import { toIsoDate } from '../utils/date';
+import { makeAddProfileFormStyles } from './addProfileForm.styles';
 
 type Sex = ProfileFormValues['sex'];
 
@@ -15,6 +16,7 @@ export function AddProfileForm({
   submitting: boolean;
 }) {
   const theme = useTheme();
+  const styles = makeAddProfileFormStyles(theme);
   const [name, setName] = useState('');
   const [date, setDate] = useState<Date | null>(null);
   const [sex, setSex] = useState<Sex>('male');
@@ -34,30 +36,23 @@ export function AddProfileForm({
     onSubmit(parsed.data);
   }
 
-  const fieldStyle = {
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radius.sm,
-    padding: theme.spacing.sm,
-  } as const;
-
   return (
-    <View style={{ gap: theme.spacing.md }}>
+    <View style={styles.form}>
       <View>
-        <Text style={{ color: theme.colors.textSecondary, fontSize: theme.text.footnote }}>Full name</Text>
+        <Text style={styles.label}>Full name</Text>
         <TextInput
           value={name}
           onChangeText={setName}
           placeholder="e.g. Sam Taylor"
           placeholderTextColor={theme.colors.textSecondary}
-          style={[fieldStyle, { color: theme.colors.textPrimary, fontSize: theme.text.body }]}
+          style={[styles.field, styles.fieldText]}
         />
       </View>
 
       <View>
-        <Text style={{ color: theme.colors.textSecondary, fontSize: theme.text.footnote }}>Date of birth</Text>
-        <Pressable onPress={() => setShowPicker(true)} style={fieldStyle}>
-          <Text style={{ color: dob ? theme.colors.textPrimary : theme.colors.textSecondary, fontSize: theme.text.body }}>
+        <Text style={styles.label}>Date of birth</Text>
+        <Pressable onPress={() => setShowPicker(true)} style={styles.field}>
+          <Text style={dob ? styles.dobValueFilled : styles.dobValuePlaceholder}>
             {dob || 'Select date'}
           </Text>
         </Pressable>
@@ -76,46 +71,31 @@ export function AddProfileForm({
       </View>
 
       <View>
-        <Text style={{ color: theme.colors.textSecondary, fontSize: theme.text.footnote }}>Body outline</Text>
-        <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
+        <Text style={styles.label}>Body outline</Text>
+        <View style={styles.sexRow}>
           {(['male', 'female'] as Sex[]).map((opt) => {
             const selected = opt === sex;
             return (
               <Pressable
                 key={opt}
                 onPress={() => setSex(opt)}
-                style={{
-                  flex: 1,
-                  padding: theme.spacing.md,
-                  borderRadius: theme.radius.sm,
-                  borderWidth: 2,
-                  borderColor: selected ? theme.colors.accent : theme.colors.border,
-                  alignItems: 'center',
-                }}
+                style={[styles.option, selected ? styles.optionSelected : styles.optionUnselected]}
               >
-                <Text style={{ color: theme.colors.textPrimary, fontSize: theme.text.body }}>
-                  {opt === 'female' ? 'Female' : 'Male'}
-                </Text>
+                <Text style={styles.optionLabel}>{opt === 'female' ? 'Female' : 'Male'}</Text>
               </Pressable>
             );
           })}
         </View>
       </View>
 
-      {error && <Text style={{ color: '#e5484d', fontSize: theme.text.footnote }}>{error}</Text>}
+      {error && <Text style={styles.errorText}>{error}</Text>}
 
       <Pressable
         disabled={!canSubmit}
         onPress={submit}
-        style={{
-          padding: theme.spacing.md,
-          borderRadius: theme.radius.md,
-          alignItems: 'center',
-          backgroundColor: canSubmit ? theme.colors.accent : theme.colors.bgSelected,
-          opacity: submitting ? 0.6 : 1,
-        }}
+        style={[styles.submit, canSubmit ? styles.submitEnabled : styles.submitDisabled, submitting && styles.submitting]}
       >
-        <Text style={{ color: '#ffffff', fontSize: theme.text.callout, fontWeight: '600' }}>Create</Text>
+        <Text style={styles.submitLabel}>Create</Text>
       </Pressable>
     </View>
   );
