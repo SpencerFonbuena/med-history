@@ -22,8 +22,8 @@ export function NewEntryContainer() {
         <EntryForm
           type={type}
           submitting={saving}
-          onSubmit={async (values) => {
-            await createEntry(buildCreateInput(id ?? '', regionParamToCode(code ?? ''), type, values));
+          onSubmit={async (values, medication) => {
+            await createEntry(buildCreateInput(id ?? '', regionParamToCode(code ?? ''), type, values, medication));
             router.back();
           }}
         />
