@@ -14,8 +14,8 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.safeArea}>
       <Stack.Screen options={{ title: 'MedHistory' }} />
       <View style={styles.center}>
-        <Text style={styles.title}>MedHistory</Text>
-        <Text style={styles.subtitle}>Scaffold ready.</Text>
+        <Text style={[styles.title, { fontSize: theme.text.largeTitle }]}>MedHistory</Text>
+        <Text style={[styles.subtitle, { fontSize: theme.text.body }]}>You're all set.</Text>
       </View>
     </SafeAreaView>
   );

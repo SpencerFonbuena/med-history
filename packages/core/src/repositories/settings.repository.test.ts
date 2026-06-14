@@ -22,3 +22,18 @@ describe('settings repository', () => {
     await expect(db.settings.setSizeLevel(9)).rejects.toThrow();
   });
 });
+
+describe('settings repository — theme', () => {
+  it('defaults to dark and updates', async () => {
+    const { db } = await makeTestDb();
+    expect((await db.settings.get()).theme).toBe('dark');
+
+    await db.settings.setTheme('light');
+    expect((await db.settings.get()).theme).toBe('light');
+  });
+
+  it('rejects an invalid theme', async () => {
+    const { db } = await makeTestDb();
+    await expect(db.settings.setTheme('blue' as never)).rejects.toThrow();
+  });
+});

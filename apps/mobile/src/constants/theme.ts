@@ -7,6 +7,8 @@
  */
 
 import { Platform } from 'react-native';
+import { scaleType, type TypeScale } from './typography';
+import { figureScale as figureScaleFor, type SizeLevel } from './appearance';
 
 const palette = {
   light: {
@@ -63,8 +65,18 @@ export interface Theme {
   spacing: typeof spacing;
   radius: typeof radius;
   fonts: typeof fonts;
+  text: TypeScale;
+  figureScale: number;
 }
 
-export function getTheme(scheme: ColorScheme): Theme {
-  return { scheme, colors: palette[scheme], spacing, radius, fonts };
+export function getTheme(scheme: ColorScheme, sizeLevel: SizeLevel = 1): Theme {
+  return {
+    scheme,
+    colors: palette[scheme],
+    spacing,
+    radius,
+    fonts,
+    text: scaleType(sizeLevel),
+    figureScale: figureScaleFor(sizeLevel),
+  };
 }

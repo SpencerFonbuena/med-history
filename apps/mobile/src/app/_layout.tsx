@@ -1,13 +1,41 @@
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import { QueryProvider } from '@/providers/QueryProvider';
+import { AppearanceProvider } from '@/features/settings/context/appearance.provider';
+import { useSettings } from '@/features/settings/hooks/useSettings.hook';
+import { useTheme } from '@/hooks/useTheme.hook';
 
-// Root navigation shell. Routing only — no logic, no data (see mobile.md §3).
-// A <QueryProvider> wrapper will be added here when the data layer lands.
-export default function RootLayout() {
+function Gate() {
+  const { settings, loading } = useSettings();
+  const segments = useSegments();
+  const router = useRouter();
+  const theme = useTheme();
+
+  useEffect(() => {
+    if (loading || !settings) return;
+    const inOnboarding = (segments[0] as string) === '(onboarding)';
+    if (!settings.onboardingDone && !inOnboarding) {
+      router.replace('/(onboarding)/size' as any);
+    } else if (settings.onboardingDone && inOnboarding) {
+      router.replace('/' as any);
+    }
+  }, [loading, settings, segments, router]);
+
   return (
     <>
-      <Stack />
-      <StatusBar style="auto" />
+      <Stack screenOptions={{ headerShown: false }} />
+      <StatusBar style={theme.scheme === 'dark' ? 'light' : 'dark'} />
     </>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <QueryProvider>
+      <AppearanceProvider>
+        <Gate />
+      </AppearanceProvider>
+    </QueryProvider>
   );
 }

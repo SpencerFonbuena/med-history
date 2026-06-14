@@ -13,5 +13,5 @@ export {
 export { createEntryInput, type CreateEntryInput } from './schemas/entry.schema';
 export { createAttachmentInput, type CreateAttachmentInput } from './schemas/attachment.schema';
 export {
-  Sex, EntryType, ImagingSubtype, RegionSide, RegionZone,
+  Sex, EntryType, ImagingSubtype, RegionSide, RegionZone, Theme,
 } from './schemas/enums';
