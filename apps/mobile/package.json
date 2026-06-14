@@ -3,9 +3,11 @@
   "main": "expo-router/entry",
   "version": "0.0.0",
   "dependencies": {
+    "@med-history/core": "workspace:*",
     "@expo/metro-runtime": "~6.1.2",
     "expo": "~54.0.35",
     "expo-constants": "~18.0.13",
+    "expo-crypto": "~15.0.9",
     "expo-linking": "~8.0.12",
     "expo-router": "~6.0.24",
     "expo-splash-screen": "~31.0.13",
