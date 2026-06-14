@@ -25,6 +25,15 @@ export function EditEntryContainer() {
     );
   }
 
+  const initialMedication =
+    entry.details && typeof (entry.details as Record<string, unknown>).rxcui === 'string'
+      ? {
+          rxcui: (entry.details as Record<string, unknown>).rxcui as string,
+          strength: (entry.details as Record<string, unknown>).strength as string | undefined,
+          doseForm: (entry.details as Record<string, unknown>).doseForm as string | undefined,
+        }
+      : undefined;
+
   function confirmDelete() {
     const currentEntry = entry!;
     Alert.alert('Delete entry', 'Delete this entry? This cannot be undone.', [
@@ -58,9 +67,10 @@ export function EditEntryContainer() {
             facility: entry.facility ?? undefined,
             subtype: entry.subtype ?? undefined,
           }}
+          initialMedication={initialMedication}
           submitting={saving}
-          onSubmit={async (values) => {
-            await updateEntry(entry.id, buildUpdateInput(entry.type, values));
+          onSubmit={async (values, medication) => {
+            await updateEntry(entry.id, buildUpdateInput(entry.type, values, medication));
             router.back();
           }}
           onDelete={confirmDelete}

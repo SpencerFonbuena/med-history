@@ -7,6 +7,8 @@ import { toIsoDate } from '@/features/profiles/utils/date';
 import { entryForm, type EntryFormValues } from '../schemas/entryForm';
 import { extrasFor } from '../services/providers/entryTypes.provider';
 import { makeEntryFormStyles } from './entryForm.styles';
+import { MedicationSearchModal } from '@/features/medications/components/medicationSearchModal.component';
+import type { MedicationDetails } from '../schemas/medicationDetails';
 
 type ExtraKey = 'doctor' | 'diagnosis' | 'prescriber' | 'duration' | 'facility';
 const EXTRA_LABELS: Record<ExtraKey, string> = {
@@ -21,14 +23,16 @@ function parseIso(iso: string): Date {
 export function EntryForm({
   type,
   initial,
+  initialMedication,
   submitting,
   onSubmit,
   onDelete,
 }: {
   type: EntryType;
   initial?: Partial<EntryFormValues>;
+  initialMedication?: MedicationDetails;
   submitting: boolean;
-  onSubmit: (values: EntryFormValues) => void;
+  onSubmit: (values: EntryFormValues, medication?: MedicationDetails) => void;
   onDelete?: () => void;
 }) {
   const theme = useTheme();
@@ -46,6 +50,8 @@ export function EntryForm({
   const [subtype, setSubtype] = useState<'imaging' | 'lab'>(initial?.subtype ?? 'imaging');
   const [showPicker, setShowPicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [medication, setMedication] = useState<MedicationDetails | null>(initialMedication ?? null);
+  const [medSearchVisible, setMedSearchVisible] = useState(false);
 
   const canSubmit = title.trim().length > 0 && body.trim().length > 0 && !submitting;
 
@@ -62,7 +68,7 @@ export function EntryForm({
       return;
     }
     setError(null);
-    onSubmit(parsed.data);
+    onSubmit(parsed.data, type === 'prescription' ? (medication ?? undefined) : undefined);
   }
 
   return (
@@ -85,16 +91,36 @@ export function EntryForm({
         )}
       </View>
 
-      <View>
-        <Text style={styles.fieldLabel}>Title</Text>
-        <TextInput
-          value={title}
-          onChangeText={setTitle}
-          placeholder="Short headline"
-          placeholderTextColor={theme.colors.textSecondary}
-          style={[styles.field, styles.fieldText]}
-        />
-      </View>
+      {type === 'prescription' ? (
+        <View>
+          <Text style={styles.fieldLabel}>Medication</Text>
+          <Pressable onPress={() => setMedSearchVisible(true)} style={styles.medField}>
+            <Text style={[styles.medValue, { color: title ? theme.colors.textPrimary : theme.colors.textSecondary }]}>
+              {title || 'Select medication'}
+            </Text>
+          </Pressable>
+          <MedicationSearchModal
+            visible={medSearchVisible}
+            onClose={() => setMedSearchVisible(false)}
+            onSelect={(sel) => {
+              setTitle(sel.name);
+              setMedication(sel.kind === 'catalog' ? { rxcui: sel.rxcui, strength: sel.strength, doseForm: sel.doseForm } : null);
+              setMedSearchVisible(false);
+            }}
+          />
+        </View>
+      ) : (
+        <View>
+          <Text style={styles.fieldLabel}>Title</Text>
+          <TextInput
+            value={title}
+            onChangeText={setTitle}
+            placeholder="Short headline"
+            placeholderTextColor={theme.colors.textSecondary}
+            style={[styles.field, styles.fieldText]}
+          />
+        </View>
+      )}
 
       <View>
         <Text style={styles.fieldLabel}>Details</Text>

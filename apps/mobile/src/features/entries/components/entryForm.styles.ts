@@ -19,4 +19,6 @@ export const makeEntryFormStyles = (theme: Theme) =>
     saveLabel: { color: theme.colors.textOnAccent, fontSize: theme.text.callout, fontWeight: '600' },
     delete: { padding: theme.spacing.md, borderRadius: theme.radius.md, alignItems: 'center', borderWidth: 1, borderColor: theme.colors.danger },
     deleteLabel: { color: theme.colors.danger, fontSize: theme.text.callout, fontWeight: '600' },
+    medField: { borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.radius.sm, padding: theme.spacing.sm },
+    medValue: { fontSize: theme.text.body },
   });

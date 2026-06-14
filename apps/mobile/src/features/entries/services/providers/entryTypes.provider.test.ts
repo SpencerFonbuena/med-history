@@ -37,4 +37,24 @@ describe('entryTypes provider', () => {
     expect('profileId' in u).toBe(false);
     expect('regionCode' in u).toBe(false);
   });
+  it('attaches medication details to a create input', () => {
+    const r = buildCreateInput(
+      'p', null, 'prescription',
+      { date: '2026-01-01', title: 'Lisinopril 10 MG Oral Tablet', body: 'x' },
+      { rxcui: '12345', strength: '10 MG', doseForm: 'Oral Tablet' },
+    );
+    expect(r.details).toEqual({ rxcui: '12345', strength: '10 MG', doseForm: 'Oral Tablet' });
+  });
+  it('omits details when no medication is given', () => {
+    const r = buildCreateInput('p', null, 'prescription', { date: '2026-01-01', title: 'x', body: 'y' });
+    expect(r.details).toBeUndefined();
+  });
+  it('attaches medication details on update too', () => {
+    const u = buildUpdateInput('prescription', { date: '2026-01-01', title: 'T', body: 'B' }, { rxcui: '9' });
+    expect(u.details).toEqual({ rxcui: '9' });
+  });
+  it('entryMeta surfaces the strength from details', () => {
+    const e = { details: { rxcui: '1', strength: '10 MG' } } as unknown as import('@med-history/core').Entry;
+    expect(entryMeta(e)).toContainEqual({ label: 'Strength:', value: '10 MG' });
+  });
 });
