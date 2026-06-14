@@ -20,6 +20,11 @@ export type IconName =
   | 'people'
   | 'trash'
   | 'check'
+  | 'image'
+  | 'document'
+  | 'camera'
+  | 'folder'
+  | 'close'
   | 'calendar';
 
 interface RegistryEntry {
@@ -44,6 +49,11 @@ const ICON_REGISTRY: Record<IconName, RegistryEntry> = {
   people: { Family: Ionicons as never, name: 'people-outline' },
   trash: { Family: Ionicons as never, name: 'trash-outline' },
   check: { Family: Ionicons as never, name: 'checkmark' },
+  image: { Family: Ionicons as never, name: 'image-outline' },
+  document: { Family: Ionicons as never, name: 'document-outline' },
+  camera: { Family: Ionicons as never, name: 'camera-outline' },
+  folder: { Family: Ionicons as never, name: 'folder-outline' },
+  close: { Family: Ionicons as never, name: 'close' },
   calendar: { Family: Ionicons as never, name: 'calendar-outline' },
 };
 
