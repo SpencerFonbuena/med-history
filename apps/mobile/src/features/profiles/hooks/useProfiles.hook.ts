@@ -1,15 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { makeProfilesCoordinator } from '../services/coordinators/profiles.coordinator';
-import { profilesRepository } from '../repositories/profiles.repository';
+import { profilesCoordinator } from '../services/coordinators/profiles.coordinator.instance';
 import { profilesKeys } from '../queryKeys';
-
-const coordinator = makeProfilesCoordinator(profilesRepository);
 
 export function useProfiles() {
   const query = useQuery({
     queryKey: profilesKeys.all,
     queryFn: async () => {
-      const r = await coordinator.loadAll();
+      const r = await profilesCoordinator.loadAll();
       if (!r.ok) throw new Error(r.error);
       return r.data;
     },

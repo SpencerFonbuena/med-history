@@ -21,6 +21,8 @@ const palette = {
     border: '#e3e4e8',
     borderSubtle: '#ececed',
     accent: '#208aef',
+    danger: '#e5484d',
+    textOnAccent: '#ffffff',
   },
   dark: {
     bgApp: '#070b14',
@@ -32,6 +34,8 @@ const palette = {
     border: '#1f2533',
     borderSubtle: '#141925',
     accent: '#3a93f0',
+    danger: '#ff6369',
+    textOnAccent: '#ffffff',
   },
 } as const;
 

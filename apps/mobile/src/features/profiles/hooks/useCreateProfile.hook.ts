@@ -1,16 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { CreateProfileInput } from '@med-history/core';
-import { makeProfilesCoordinator } from '../services/coordinators/profiles.coordinator';
-import { profilesRepository } from '../repositories/profiles.repository';
+import { profilesCoordinator } from '../services/coordinators/profiles.coordinator.instance';
 import { profilesKeys } from '../queryKeys';
-
-const coordinator = makeProfilesCoordinator(profilesRepository);
 
 export function useCreateProfile() {
   const qc = useQueryClient();
   const mutation = useMutation({
     mutationFn: async (input: CreateProfileInput) => {
-      const r = await coordinator.create(input);
+      const r = await profilesCoordinator.create(input);
       if (!r.ok) throw new Error(r.error);
       return r.data;
     },

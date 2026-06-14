@@ -1,15 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { makeProfilesCoordinator } from '../services/coordinators/profiles.coordinator';
-import { profilesRepository } from '../repositories/profiles.repository';
+import { profilesCoordinator } from '../services/coordinators/profiles.coordinator.instance';
 import { profilesKeys } from '../queryKeys';
-
-const coordinator = makeProfilesCoordinator(profilesRepository);
 
 export function useDeleteProfile() {
   const qc = useQueryClient();
   const mutation = useMutation({
     mutationFn: async (id: string) => {
-      const r = await coordinator.remove(id);
+      const r = await profilesCoordinator.remove(id);
       if (!r.ok) throw new Error(r.error);
     },
     onSuccess: async () => {
