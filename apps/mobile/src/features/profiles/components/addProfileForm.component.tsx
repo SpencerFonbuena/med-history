@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Platform, Pressable, Text, TextInput, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTheme } from '@/hooks/useTheme.hook';
+import { Icon } from '@/components/icon.component';
 import { profileForm, type ProfileFormValues } from '../schemas/profileForm';
 import { toIsoDate } from '../utils/date';
 import { makeAddProfileFormStyles } from './addProfileForm.styles';
@@ -22,6 +23,7 @@ export function AddProfileForm({
   const [sex, setSex] = useState<Sex>('male');
   const [showPicker, setShowPicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [nameFocused, setNameFocused] = useState(false);
 
   const dob = date ? toIsoDate(date) : '';
   const canSubmit = name.trim().length > 0 && dob.length > 0 && !submitting;
@@ -43,18 +45,21 @@ export function AddProfileForm({
         <TextInput
           value={name}
           onChangeText={setName}
+          onFocus={() => setNameFocused(true)}
+          onBlur={() => setNameFocused(false)}
           placeholder="e.g. Sam Taylor"
           placeholderTextColor={theme.colors.textSecondary}
-          style={[styles.field, styles.fieldText]}
+          style={[styles.field, styles.fieldText, nameFocused && styles.fieldFocused]}
         />
       </View>
 
       <View>
         <Text style={styles.label}>Date of birth</Text>
-        <Pressable onPress={() => setShowPicker(true)} style={styles.field}>
+        <Pressable onPress={() => setShowPicker(true)} style={[styles.field, styles.fieldRow]}>
           <Text style={dob ? styles.dobValueFilled : styles.dobValuePlaceholder}>
             {dob || 'Select date'}
           </Text>
+          <Icon name="calendar" size={18} color={theme.colors.textSecondary} />
         </Pressable>
         {showPicker && (
           <DateTimePicker
@@ -95,6 +100,7 @@ export function AddProfileForm({
         onPress={submit}
         style={[styles.submit, canSubmit ? styles.submitEnabled : styles.submitDisabled, submitting && styles.submitting]}
       >
+        <Icon name="check" size={18} color={theme.colors.textOnAccent} />
         <Text style={styles.submitLabel}>Create</Text>
       </Pressable>
     </View>

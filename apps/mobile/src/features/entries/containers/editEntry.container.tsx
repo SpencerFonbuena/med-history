@@ -1,4 +1,5 @@
-import { ActivityIndicator, Alert, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Text, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/hooks/useTheme.hook';
@@ -51,7 +52,12 @@ export function EditEntryContainer() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.content}
+        enableOnAndroid
+        extraScrollHeight={24}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.title}>Edit entry</Text>
         {label && <Text style={styles.subtitle}>{label}</Text>}
         <EntryForm
@@ -75,7 +81,7 @@ export function EditEntryContainer() {
           }}
           onDelete={confirmDelete}
         />
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }

@@ -10,6 +10,8 @@ export const makeProfileCardStyles = (theme: Theme) =>
       padding: theme.spacing.md,
       borderRadius: theme.radius.md,
       backgroundColor: theme.colors.bgElement,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
     },
     info: {
       flex: 1,
@@ -22,9 +24,5 @@ export const makeProfileCardStyles = (theme: Theme) =>
     meta: {
       color: theme.colors.textSecondary,
       fontSize: theme.text.footnote,
-    },
-    chevron: {
-      color: theme.colors.textSecondary,
-      fontSize: theme.text.title,
     },
   });

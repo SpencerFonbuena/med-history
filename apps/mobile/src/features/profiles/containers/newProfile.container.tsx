@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { ScrollView } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme.hook';
 import { useCreateProfile } from '../hooks/useCreateProfile.hook';
@@ -12,7 +12,12 @@ export function NewProfileContainer() {
   const { createProfile, saving } = useCreateProfile();
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.contentContainer}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.contentContainer}
+        enableOnAndroid
+        extraScrollHeight={24}
+        keyboardShouldPersistTaps="handled"
+      >
         <AddProfileForm
           submitting={saving}
           onSubmit={async (values) => {
@@ -20,7 +25,7 @@ export function NewProfileContainer() {
             router.back();
           }}
         />
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }

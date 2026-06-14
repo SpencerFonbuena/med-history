@@ -35,4 +35,14 @@ describe('settings coordinator', () => {
     expect((await port.get()).sizeLevel).toBe(4);
     expect((await port.get()).theme).toBe('light');
   });
+
+  it('updates appearance without touching the onboarding flag', async () => {
+    const port = fakePort(); // starts onboardingDone=false
+    const c = makeSettingsCoordinator(port);
+    const r = await c.updateAppearance({ sizeLevel: 3, theme: 'light' });
+    expect(r.ok).toBe(true);
+    expect((await port.get()).sizeLevel).toBe(3);
+    expect((await port.get()).theme).toBe('light');
+    expect((await port.get()).onboardingDone).toBe(false);
+  });
 });

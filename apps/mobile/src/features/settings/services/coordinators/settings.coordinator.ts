@@ -30,5 +30,16 @@ export function makeSettingsCoordinator(port: SettingsPort) {
     }
   }
 
-  return { load, commitOnboarding };
+  /** Persist an appearance change made after onboarding (no completion flag). */
+  async function updateAppearance(input: { sizeLevel: SizeLevel; theme: Theme }): Promise<Result<AppSettings>> {
+    try {
+      await port.setSizeLevel(input.sizeLevel);
+      await port.setTheme(input.theme);
+      return ok(await port.get());
+    } catch (e) {
+      return err((e as Error).message);
+    }
+  }
+
+  return { load, commitOnboarding, updateAppearance };
 }

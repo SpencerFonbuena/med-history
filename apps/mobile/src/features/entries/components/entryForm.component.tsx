@@ -3,6 +3,7 @@ import { Platform, Pressable, Text, TextInput, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import type { EntryType } from '@med-history/core';
 import { useTheme } from '@/hooks/useTheme.hook';
+import { Icon } from '@/components/icon.component';
 import { toIsoDate } from '@/features/profiles/utils/date';
 import { entryForm, type EntryFormValues } from '../schemas/entryForm';
 import { extrasFor } from '../services/providers/entryTypes.provider';
@@ -52,8 +53,18 @@ export function EntryForm({
   const [error, setError] = useState<string | null>(null);
   const [medication, setMedication] = useState<MedicationDetails | null>(initialMedication ?? null);
   const [medSearchVisible, setMedSearchVisible] = useState(false);
+  // Tracks which field has keyboard focus so we can highlight its border.
+  const [focused, setFocused] = useState<string | null>(null);
 
   const canSubmit = title.trim().length > 0 && body.trim().length > 0 && !submitting;
+
+  /** Style array for a text field, adding the focus ring when active. */
+  const fieldStyle = (key: string, extra?: object) => [
+    styles.field,
+    styles.fieldText,
+    extra,
+    focused === key && styles.fieldFocused,
+  ];
 
   function submit() {
     const parsed = entryForm.safeParse({
@@ -75,8 +86,9 @@ export function EntryForm({
     <View style={styles.form}>
       <View>
         <Text style={styles.fieldLabel}>Date</Text>
-        <Pressable onPress={() => setShowPicker(true)} style={styles.field}>
+        <Pressable onPress={() => setShowPicker(true)} style={[styles.field, styles.fieldRow]}>
           <Text style={styles.dateValue}>{toIsoDate(date)}</Text>
+          <Icon name="calendar" size={18} color={theme.colors.textSecondary} />
         </Pressable>
         {showPicker && (
           <DateTimePicker
@@ -94,10 +106,11 @@ export function EntryForm({
       {type === 'prescription' ? (
         <View>
           <Text style={styles.fieldLabel}>Medication</Text>
-          <Pressable onPress={() => setMedSearchVisible(true)} style={styles.medField}>
+          <Pressable onPress={() => setMedSearchVisible(true)} style={[styles.medField, styles.fieldRow]}>
             <Text style={[styles.medValue, { color: title ? theme.colors.textPrimary : theme.colors.textSecondary }]}>
               {title || 'Select medication'}
             </Text>
+            <Icon name="forward" size={18} color={theme.colors.textSecondary} />
           </Pressable>
           <MedicationSearchModal
             visible={medSearchVisible}
@@ -115,9 +128,11 @@ export function EntryForm({
           <TextInput
             value={title}
             onChangeText={setTitle}
+            onFocus={() => setFocused('title')}
+            onBlur={() => setFocused(null)}
             placeholder="Short headline"
             placeholderTextColor={theme.colors.textSecondary}
-            style={[styles.field, styles.fieldText]}
+            style={fieldStyle('title')}
           />
         </View>
       )}
@@ -127,10 +142,12 @@ export function EntryForm({
         <TextInput
           value={body}
           onChangeText={setBody}
+          onFocus={() => setFocused('body')}
+          onBlur={() => setFocused(null)}
           multiline
           placeholder="What happened, what you noticed, etc."
           placeholderTextColor={theme.colors.textSecondary}
-          style={[styles.field, styles.fieldText, styles.bodyInput]}
+          style={fieldStyle('body', styles.bodyInput)}
         />
       </View>
 
@@ -140,8 +157,10 @@ export function EntryForm({
           <TextInput
             value={extras[key]}
             onChangeText={(v) => setExtras((prev) => ({ ...prev, [key]: v }))}
+            onFocus={() => setFocused(key)}
+            onBlur={() => setFocused(null)}
             placeholderTextColor={theme.colors.textSecondary}
-            style={[styles.field, styles.fieldText]}
+            style={fieldStyle(key)}
           />
         </View>
       ))}
@@ -169,11 +188,13 @@ export function EntryForm({
       {error && <Text style={styles.error}>{error}</Text>}
 
       <Pressable disabled={!canSubmit} onPress={submit} style={[styles.save, !canSubmit && styles.saveDisabled]}>
+        <Icon name="check" size={18} color={theme.colors.textOnAccent} />
         <Text style={styles.saveLabel}>Save</Text>
       </Pressable>
 
       {onDelete && (
         <Pressable onPress={onDelete} style={styles.delete}>
+          <Icon name="trash" size={18} color={theme.colors.danger} />
           <Text style={styles.deleteLabel}>Delete entry</Text>
         </Pressable>
       )}

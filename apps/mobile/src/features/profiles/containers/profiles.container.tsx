@@ -2,6 +2,8 @@ import { router } from 'expo-router';
 import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme.hook';
+import { Icon } from '@/components/icon.component';
+import { IconButton } from '@/components/iconButton.component';
 import { useProfiles } from '../hooks/useProfiles.hook';
 import { ProfileCard } from '../components/profileCard.component';
 import { ProfilesEmptyState } from '../components/profilesEmptyState.component';
@@ -14,7 +16,16 @@ export function ProfilesContainer() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.content}>
-        <Text style={styles.heading}>Profiles</Text>
+        <View style={styles.headingRow}>
+          <Text style={styles.heading}>Profiles</Text>
+          <IconButton
+            name="settings"
+            variant="surface"
+            size={20}
+            onPress={() => router.push('/settings' as any)}
+            accessibilityLabel="Settings"
+          />
+        </View>
         {loading ? (
           <ActivityIndicator color={theme.colors.accent} />
         ) : profiles.length === 0 ? (
@@ -34,8 +45,11 @@ export function ProfilesContainer() {
         <Pressable
           onPress={() => router.push('/profile/new' as any)}
           style={styles.addButton}
+          accessibilityRole="button"
+          accessibilityLabel="Add profile"
         >
-          <Text style={styles.addButtonLabel}>+ Add profile</Text>
+          <Icon name="add" size={20} color={theme.colors.textOnAccent} />
+          <Text style={styles.addButtonLabel}>Add profile</Text>
         </Pressable>
       </View>
     </SafeAreaView>

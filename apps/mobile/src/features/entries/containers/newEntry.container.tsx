@@ -1,4 +1,5 @@
-import { ScrollView, Text } from 'react-native';
+import { Text } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import type { EntryType } from '@med-history/core';
@@ -16,7 +17,12 @@ export function NewEntryContainer() {
   const { createEntry, saving } = useCreateEntry();
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.content}
+        enableOnAndroid
+        extraScrollHeight={24}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.title}>New entry</Text>
         {label && <Text style={styles.subtitle}>{label}</Text>}
         <EntryForm
@@ -27,7 +33,7 @@ export function NewEntryContainer() {
             router.back();
           }}
         />
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }

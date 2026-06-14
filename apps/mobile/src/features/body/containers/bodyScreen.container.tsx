@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/hooks/useTheme.hook';
+import { IconButton } from '@/components/iconButton.component';
 import { useProfiles } from '@/features/profiles/hooks/useProfiles.hook';
 import { calcAge } from '@/features/profiles/utils/date';
 import { useBodyMap } from '../hooks/useBodyMap.hook';
@@ -28,9 +29,7 @@ export function BodyScreenContainer() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.iconButton}>
-          <Text style={styles.backGlyph}>{'‹'}</Text>
-        </Pressable>
+        <IconButton name="back" onPress={() => router.back()} accessibilityLabel="Go back" />
         <View style={styles.headerText}>
           <Text style={styles.name}>{profile?.name ?? ''}</Text>
           {profile && (
@@ -39,9 +38,13 @@ export function BodyScreenContainer() {
             </Text>
           )}
         </View>
-        <Pressable onPress={() => router.push(`/profile/${id}/settings` as any)} style={styles.iconButton}>
-          <Text style={styles.iconGlyph}>{'⚙'}</Text>
-        </Pressable>
+        <IconButton
+          name="settings"
+          variant="surface"
+          size={20}
+          onPress={() => router.push(`/profile/${id}/settings` as any)}
+          accessibilityLabel="Profile settings"
+        />
       </View>
 
       {loading ? (

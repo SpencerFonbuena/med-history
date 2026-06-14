@@ -1,17 +1,13 @@
-import { Text, View } from 'react-native';
-import { useTheme } from '@/hooks/useTheme.hook';
-import { makeProfilesEmptyStateStyles } from './profilesEmptyState.styles';
+import { EmptyState } from '@/components/emptyState.component';
 
-export function ProfilesEmptyState() {
-  const theme = useTheme();
-  const styles = makeProfilesEmptyStateStyles(theme);
+export function ProfilesEmptyState({ onAdd }: { onAdd?: () => void }) {
   return (
-    <View style={styles.container}>
-      <Text style={styles.emoji}>{'👤'}</Text>
-      <Text style={styles.heading}>No profiles yet</Text>
-      <Text style={styles.body}>
-        Add a profile to start tracking medical history on this device.
-      </Text>
-    </View>
+    <EmptyState
+      icon="people"
+      title="No profiles yet"
+      subtitle="Add a profile to start tracking medical history on this device."
+      actionLabel={onAdd ? 'Add profile' : undefined}
+      onAction={onAdd}
+    />
   );
 }

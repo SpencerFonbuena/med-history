@@ -9,12 +9,23 @@ export const makeAddProfileFormStyles = (theme: Theme) =>
     label: {
       color: theme.colors.textSecondary,
       fontSize: theme.text.footnote,
+      marginBottom: theme.spacing.xs,
     },
     field: {
       borderWidth: 1,
       borderColor: theme.colors.border,
       borderRadius: theme.radius.sm,
       padding: theme.spacing.sm,
+      backgroundColor: theme.colors.bgApp,
+    },
+    fieldFocused: {
+      borderColor: theme.colors.accent,
+      borderWidth: 2,
+    },
+    fieldRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
     },
     fieldText: {
       color: theme.colors.textPrimary,
@@ -54,12 +65,16 @@ export const makeAddProfileFormStyles = (theme: Theme) =>
       fontSize: theme.text.footnote,
     },
     submit: {
+      flexDirection: 'row',
+      gap: theme.spacing.sm,
       padding: theme.spacing.md,
       borderRadius: theme.radius.md,
       alignItems: 'center',
+      justifyContent: 'center',
     },
     submitEnabled: {
       backgroundColor: theme.colors.accent,
+      ...theme.shadow.sm,
     },
     submitDisabled: {
       backgroundColor: theme.colors.bgSelected,

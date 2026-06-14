@@ -2,6 +2,8 @@ import { Alert, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/hooks/useTheme.hook';
+import { Icon } from '@/components/icon.component';
+import { IconButton } from '@/components/iconButton.component';
 import { useProfiles } from '../hooks/useProfiles.hook';
 import { useDeleteProfile } from '../hooks/useDeleteProfile.hook';
 import { calcAge } from '../utils/date';
@@ -37,9 +39,7 @@ export function ProfileSettingsContainer() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <Pressable onPress={() => router.back()}>
-          <Text style={styles.backGlyph}>{'‹'}</Text>
-        </Pressable>
+        <IconButton name="back" onPress={() => router.back()} accessibilityLabel="Go back" />
         <Text style={styles.title}>Profile settings</Text>
       </View>
       {profile && (
@@ -52,6 +52,7 @@ export function ProfileSettingsContainer() {
       )}
       <View style={styles.footer}>
         <Pressable disabled={deleting} onPress={confirmDelete} style={styles.deleteButton}>
+          <Icon name="trash" size={18} color={theme.colors.danger} />
           <Text style={styles.deleteLabel}>Delete profile</Text>
         </Pressable>
       </View>
