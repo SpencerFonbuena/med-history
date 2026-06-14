@@ -18,3 +18,6 @@ export type RegionZone = z.infer<typeof RegionZone>;
 
 /** ISO calendar date 'YYYY-MM-DD'. */
 export const IsoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'expected YYYY-MM-DD');
+
+export const Theme = z.enum(['light', 'dark']);
+export type Theme = z.infer<typeof Theme>;
