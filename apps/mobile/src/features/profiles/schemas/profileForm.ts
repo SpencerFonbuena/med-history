@@ -1,7 +1,11 @@
 import { z } from 'zod';
+import { toIsoDate } from '../utils/date';
 
+// Local-date 'today' so the future-date guard matches the picker, which produces
+// the DOB via toIsoDate (local Y-M-D). Using UTC here would reject today's date
+// for users in a positive UTC offset during their early-morning hours.
 function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
+  return toIsoDate(new Date());
 }
 
 // Sex values mirror core's Sex enum ('male' | 'female'); declared locally so this
