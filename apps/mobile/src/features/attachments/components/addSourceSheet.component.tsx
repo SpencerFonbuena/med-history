@@ -1,4 +1,4 @@
-import { Modal, Pressable, Text, View } from 'react-native';
+import { Modal, Pressable, Text } from 'react-native';
 import { useTheme } from '@/hooks/useTheme.hook';
 import { Icon, type IconName } from '@/components/icon.component';
 import type { AttachmentSource } from '../schemas/attachment.schema';
