@@ -20,10 +20,7 @@ const DEFAULT: Appearance = { scheme: 'dark', sizeLevel: 1 };
 
 export function AppearanceProvider({ children }: { children: ReactNode }) {
   const { settings } = useSettings();
-  const [state, dispatch] = useReducer(
-    appearanceReducer,
-    initialAppearance(DEFAULT) as AppearanceState,
-  );
+  const [state, dispatch] = useReducer(appearanceReducer, DEFAULT, initialAppearance);
 
   // Sync persisted settings into the reducer's effective appearance.
   useEffect(() => {

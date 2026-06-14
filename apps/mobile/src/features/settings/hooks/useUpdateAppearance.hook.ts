@@ -15,8 +15,11 @@ export function useUpdateAppearance() {
       if (!r.ok) throw new Error(r.error);
       return r.data;
     },
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: settingsKeys.all });
+    // Await the refetch so mutateAsync does not resolve until the settings cache
+    // reflects the new values (onboardingDone=true). Otherwise the onboarding gate
+    // reads stale data after navigation and bounces back to onboarding.
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: settingsKeys.all });
     },
   });
   return {
