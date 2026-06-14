@@ -23,6 +23,8 @@ const palette = {
     accent: '#208aef',
     danger: '#e5484d',
     textOnAccent: '#ffffff',
+    figureStroke: '#7c8aa0',
+    dotDim: '#b8bdc7',
   },
   dark: {
     bgApp: '#070b14',
@@ -36,6 +38,8 @@ const palette = {
     accent: '#3a93f0',
     danger: '#ff6369',
     textOnAccent: '#ffffff',
+    figureStroke: '#a5cfe8',
+    dotDim: '#2a3448',
   },
 } as const;
 
