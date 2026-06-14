@@ -26,8 +26,9 @@ export function StagedAttachments({
     name: p.name,
   }));
 
+  // The sheet closes itself before invoking this (see AddSourceSheet), so the
+  // picker presents cleanly on iOS.
   async function choose(source: AttachmentSource) {
-    setSheetOpen(false);
     try {
       const picked = await pick(source);
       if (picked) onChange([...picks, picked]);
