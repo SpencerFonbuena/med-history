@@ -1,5 +1,6 @@
 import type { CreateEntryInput, UpdateEntryInput, EntryType, Entry } from '@med-history/core';
 import type { EntryFormValues } from '../../schemas/entryForm';
+import type { MedicationDetails } from '../../schemas/medicationDetails';
 
 export interface EntryTab {
   type: EntryType;
@@ -42,7 +43,17 @@ export function entryMeta(entry: Entry): MetaItem[] {
   if (entry.duration) meta.push({ label: 'Duration:', value: entry.duration });
   if (entry.facility) meta.push({ label: 'At:', value: entry.facility });
   if (entry.subtype) meta.push({ label: 'Type:', value: entry.subtype === 'lab' ? 'Lab' : 'Imaging' });
+  const strength = entry.details && (entry.details as Record<string, unknown>).strength;
+  if (typeof strength === 'string') meta.push({ label: 'Strength:', value: strength });
   return meta;
+}
+
+function medicationToDetails(med: MedicationDetails): Record<string, unknown> {
+  return {
+    rxcui: med.rxcui,
+    ...(med.strength ? { strength: med.strength } : {}),
+    ...(med.doseForm ? { doseForm: med.doseForm } : {}),
+  };
 }
 
 function cleanExtras(values: EntryFormValues): Partial<Record<ExtraKey, string>> {
@@ -59,6 +70,7 @@ export function buildCreateInput(
   regionCode: string | null,
   type: EntryType,
   values: EntryFormValues,
+  medication?: MedicationDetails,
 ): CreateEntryInput {
   return {
     profileId,
@@ -69,15 +81,21 @@ export function buildCreateInput(
     body: values.body.trim(),
     ...cleanExtras(values),
     ...(type === 'imaging_test' && values.subtype ? { subtype: values.subtype } : {}),
+    ...(medication ? { details: medicationToDetails(medication) } : {}),
   };
 }
 
-export function buildUpdateInput(type: EntryType, values: EntryFormValues): UpdateEntryInput {
+export function buildUpdateInput(
+  type: EntryType,
+  values: EntryFormValues,
+  medication?: MedicationDetails,
+): UpdateEntryInput {
   return {
     date: values.date,
     title: values.title.trim(),
     body: values.body.trim(),
     ...cleanExtras(values),
     ...(type === 'imaging_test' && values.subtype ? { subtype: values.subtype } : {}),
+    ...(medication ? { details: medicationToDetails(medication) } : {}),
   };
 }
