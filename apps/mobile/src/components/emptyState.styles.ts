@@ -31,7 +31,7 @@ export const makeEmptyStateStyles = (theme: Theme) =>
       color: theme.colors.textSecondary,
       fontSize: theme.text.body,
       textAlign: 'center',
-      lineHeight: 22,
+      lineHeight: theme.text.body * 1.4,
     },
     action: {
       flexDirection: 'row',
