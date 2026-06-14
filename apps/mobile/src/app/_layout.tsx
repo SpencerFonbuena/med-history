@@ -24,7 +24,9 @@ function Gate() {
 
   return (
     <>
-      <Stack screenOptions={{ headerShown: false }} />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="profile/new" options={{ presentation: 'modal' }} />
+      </Stack>
       <StatusBar style={theme.scheme === 'dark' ? 'light' : 'dark'} />
     </>
   );

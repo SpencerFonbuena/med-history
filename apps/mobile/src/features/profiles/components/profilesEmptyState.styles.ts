@@ -1,25 +1,24 @@
 import { StyleSheet } from 'react-native';
-
 import type { Theme } from '@/constants/theme';
 
-export const makeHomeStyles = (theme: Theme) =>
+export const makeProfilesEmptyStateStyles = (theme: Theme) =>
   StyleSheet.create({
-    safeArea: {
-      flex: 1,
-      backgroundColor: theme.colors.bgApp,
-    },
-    center: {
-      flex: 1,
+    container: {
       alignItems: 'center',
-      justifyContent: 'center',
       gap: theme.spacing.sm,
+      paddingVertical: theme.spacing.xxl,
     },
-    title: {
+    emoji: {
+      fontSize: 40,
+    },
+    heading: {
       color: theme.colors.textPrimary,
-      fontSize: 22,
+      fontSize: theme.text.subtitle,
       fontWeight: '600',
     },
-    subtitle: {
+    body: {
       color: theme.colors.textSecondary,
+      fontSize: theme.text.body,
+      textAlign: 'center',
     },
   });
