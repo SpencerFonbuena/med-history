@@ -12,6 +12,8 @@ export {
 } from './schemas/profile.schema';
 export { createEntryInput, type CreateEntryInput, updateEntryInput, type UpdateEntryInput } from './schemas/entry.schema';
 export { createAttachmentInput, type CreateAttachmentInput } from './schemas/attachment.schema';
+export { makeMedicationsRepository, type MedicationHit, type MedicationSeedRow } from './repositories/medications.repository';
+export { buildFtsQuery } from './db/ftsQuery';
 export {
   Sex, EntryType, ImagingSubtype, RegionSide, RegionZone, Theme,
 } from './schemas/enums';

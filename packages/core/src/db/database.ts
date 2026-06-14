@@ -6,6 +6,7 @@ import { makeProfilesRepository } from '../repositories/profiles.repository';
 import { makeRegionsRepository } from '../repositories/regions.repository';
 import { makeEntriesRepository } from '../repositories/entries.repository';
 import { makeAttachmentsRepository } from '../repositories/attachments.repository';
+import { makeMedicationsRepository } from '../repositories/medications.repository';
 
 export interface CoreDeps {
   /** Returns a new unique id (e.g. a UUID). */
@@ -20,6 +21,7 @@ export interface Database {
   regions: ReturnType<typeof makeRegionsRepository>;
   entries: ReturnType<typeof makeEntriesRepository>;
   attachments: ReturnType<typeof makeAttachmentsRepository>;
+  medications: ReturnType<typeof makeMedicationsRepository>;
 }
 
 /** Apply migrations, then build the repository surface over the driver. */
@@ -32,5 +34,6 @@ export async function openDatabase(driver: DbDriver, deps: CoreDeps): Promise<Da
     regions: makeRegionsRepository(driver),
     entries: makeEntriesRepository(driver, deps),
     attachments: makeAttachmentsRepository(driver, deps),
+    medications: makeMedicationsRepository(driver),
   };
 }
