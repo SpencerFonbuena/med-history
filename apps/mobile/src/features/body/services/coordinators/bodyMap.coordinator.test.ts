@@ -30,5 +30,6 @@ describe('body map coordinator', () => {
     );
     const r = await c.loadMap('p1');
     expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toBe('db down');
   });
 });
