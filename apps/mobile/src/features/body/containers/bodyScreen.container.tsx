@@ -56,14 +56,18 @@ export function BodyScreenContainer() {
                 <RegionDot
                   key={dot.code}
                   dot={dot}
-                  onPress={() => router.push(`/profile/${id}/region/${dot.code}` as any)}
+                  onPress={() =>
+                    router.push(
+                      `/profile/${id}/region/${dot.code}?label=${encodeURIComponent(dot.label)}` as any,
+                    )
+                  }
                 />
               ))}
             </BodySilhouette>
           </View>
           <GeneralControl
             lit={(bodyMap?.generalCount ?? 0) > 0}
-            onPress={() => router.push(`/profile/${id}/region/general` as any)}
+            onPress={() => router.push(`/profile/${id}/region/general?label=General` as any)}
           />
         </ScrollView>
       )}

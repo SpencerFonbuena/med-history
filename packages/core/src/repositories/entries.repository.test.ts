@@ -59,4 +59,23 @@ describe('entries repository', () => {
     expect(counts.get('knee-right')).toBe(2);
     expect(counts.get(null)).toBe(1);
   });
+
+  it('updates a field and leaves the others untouched', async () => {
+    const { db } = await makeTestDb();
+    const p = await seedProfile(db);
+    const e = await db.entries.create({
+      profileId: p.id, regionCode: 'knee-right', type: 'visit',
+      date: '2026-02-18', title: 'Ortho', body: 'knee pain', doctor: 'Dr. Park',
+    });
+    const updated = await db.entries.update(e.id, { title: 'Ortho follow-up' });
+    expect(updated.title).toBe('Ortho follow-up');
+    expect(updated.body).toBe('knee pain');
+    expect(updated.doctor).toBe('Dr. Park');
+    expect(updated.updatedAt >= e.updatedAt).toBe(true);
+  });
+
+  it('throws when updating a missing entry', async () => {
+    const { db } = await makeTestDb();
+    await expect(db.entries.update('nope', { title: 'x' })).rejects.toThrow();
+  });
 });

@@ -10,7 +10,7 @@ export {
   createProfileInput, updateProfileInput,
   type CreateProfileInput, type UpdateProfileInput,
 } from './schemas/profile.schema';
-export { createEntryInput, type CreateEntryInput } from './schemas/entry.schema';
+export { createEntryInput, type CreateEntryInput, updateEntryInput, type UpdateEntryInput } from './schemas/entry.schema';
 export { createAttachmentInput, type CreateAttachmentInput } from './schemas/attachment.schema';
 export {
   Sex, EntryType, ImagingSubtype, RegionSide, RegionZone, Theme,

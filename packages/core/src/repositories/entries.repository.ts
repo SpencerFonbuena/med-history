@@ -1,6 +1,6 @@
 import type { DbDriver } from '../db/driver';
 import type { CoreDeps } from '../db/database';
-import { createEntryInput, type CreateEntryInput, type Entry } from '../schemas/entry.schema';
+import { createEntryInput, updateEntryInput, type CreateEntryInput, type UpdateEntryInput, type Entry } from '../schemas/entry.schema';
 import type { EntryType, ImagingSubtype } from '../schemas/enums';
 
 interface EntryRow {
@@ -109,9 +109,37 @@ export function makeEntriesRepository(driver: DbDriver, deps: CoreDeps) {
     return new Map(rows.map((r) => [r.region_code, r.c]));
   }
 
+  async function update(id: string, input: UpdateEntryInput): Promise<Entry> {
+    const data = updateEntryInput.parse(input);
+    const ts = deps.now();
+    const fields: string[] = [];
+    const params: (string | null)[] = [];
+    const columns: Record<string, string> = {
+      regionCode: 'region_code', subtype: 'subtype', date: 'date', title: 'title', body: 'body',
+      doctor: 'doctor', diagnosis: 'diagnosis', prescriber: 'prescriber', duration: 'duration', facility: 'facility',
+    };
+    for (const key of Object.keys(columns) as (keyof typeof columns)[]) {
+      const value = (data as Record<string, unknown>)[key];
+      if (value !== undefined) {
+        fields.push(`${columns[key]} = ?`);
+        params.push((value as string | null) ?? null);
+      }
+    }
+    if (data.details !== undefined) {
+      fields.push('details = ?');
+      params.push(data.details ? JSON.stringify(data.details) : null);
+    }
+    fields.push('updated_at = ?');
+    params.push(ts, id);
+    await driver.run(`UPDATE entries SET ${fields.join(', ')} WHERE id = ?`, params);
+    const updated = await get(id);
+    if (!updated) throw new Error(`entry ${id} not found`);
+    return updated;
+  }
+
   async function remove(id: string): Promise<void> {
     await driver.run('DELETE FROM entries WHERE id = ?', [id]);
   }
 
-  return { create, get, listByRegion, listGeneral, countsByRegion, remove };
+  return { create, get, listByRegion, listGeneral, countsByRegion, update, remove };
 }
