@@ -1,5 +1,10 @@
 # Backend Rules — apps/api (Python / FastAPI)
 
+> **DORMANT — no backend exists yet.** MedHistory is currently local-first (all data on-device
+> in SQLite, no server). There is no `apps/api`, so nothing in this file applies today. It is
+> kept as the standard to follow *if and when* a backend is introduced (e.g. for optional sync).
+> Until then, ignore it.
+
 The codebase is actively being refactored. Ignore legacy code that violates these rules. Write all new code to this standard.
 
 ---

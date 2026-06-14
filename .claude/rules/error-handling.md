@@ -1,5 +1,11 @@
 # Error Handling — Python / FastAPI / Inngest
 
+> **DORMANT mechanics, live principle.** The FastAPI/Inngest specifics here apply only once a
+> backend exists (see `backend.md`). But the *core principle* below — raise deep, catch at the
+> edge, let exceptions bubble through intermediate layers — is language-agnostic and should
+> guide error handling in the mobile app too (raise in `packages/core`/repositories, catch in
+> coordinators which return a typed `Result<T>`). Ignore the Python code; keep the philosophy.
+
 ## The Fundamental Principle
 
 **Raise where you know what went wrong. Catch at the edge of your system.**

@@ -1,14 +1,21 @@
-# Frontend Rules — Web & Mobile
+# Frontend Rules — Mobile (local-first)
 
-Applies to both `apps/web` (Next.js) and `apps/mobile` (React Native/Expo).
+Applies to `apps/mobile` (React Native/Expo). There is no web app and **no backend** —
+MedHistory is local-first: all data lives on-device in SQLite, with no internal API to call.
 The codebase is actively being refactored — ignore legacy code that violates these rules. Write all new code to this standard.
+
+> **Where the data layer lives.** The low-level data engine — SQLite schema, migrations,
+> query primitives, domain models, and pure data business logic — lives in **`packages/core`**
+> (framework-agnostic, Node-testable). Feature `repositories/` are thin wrappers in
+> `apps/mobile` that call `core` for that feature's tables. Domain rules live in `core`;
+> presentation logic lives in the feature. See `repositories/` below.
 
 ---
 
 ## Layer Map (read this first)
 
 ```
-app/screen    →  container  →  hook  →  coordinator  →  api / repository
+app/screen    →  container  →  hook  →  coordinator  →  repository  →  packages/core
                      ↓                        ↓
                  component                 provider
                      ↓
@@ -16,8 +23,8 @@ app/screen    →  container  →  hook  →  coordinator  →  api / repository
 ```
 
 - Data flows down. Concerns stay in their layer.
-- React usage stops at hooks. Everything below (services, api, repositories, utils) must be framework-agnostic.
-- Hooks may call providers directly for pure logic with no API access. Coordinators are only needed when `api/` or `repositories/` are involved.
+- React usage stops at hooks. Everything below (services, repositories, utils) must be framework-agnostic.
+- Hooks may call providers directly for pure logic with no data access. Coordinators are only needed when `repositories/` are involved. Many coordinators will be thin (a single local read) — that is fine; they earn their keep when composing multiple writes or handling errors across reads.
 
 ---
 
@@ -51,38 +58,40 @@ All application code lives in `src/features/{featureName}/`. Features are self-c
 
 ```
 src/features/{feature}/
-  api/            # Internal backend calls
   components/     # Presentational UI
   containers/     # Coordination + composition
   context/        # Zustand stores
   hooks/          # React behavior layer
-  repositories/   # External service calls
+  repositories/   # Local/device data sources — SQLite (via packages/core), FileSystem, SecureStore, StoreKit
   schemas/        # Types, Zod schemas, enums
   services/
-    coordinators/ # Orchestration: calls api/ and repositories/, handles errors
+    coordinators/ # Orchestration: calls repositories/, handles errors
     providers/    # Pure logic functions. No React. Testable in isolation.
   utils/          # Pure helper functions
 ```
+
+> There is no `api/` folder. It existed for internal backend HTTP calls — this app has no
+> backend, so the layer is removed. All data access goes through `repositories/`.
 
 ---
 
 ## 3. Layer Rules
 
-### `api/` — Internal backend communication
-- HTTP requests to our internal API only.
-- Return raw or minimally parsed responses.
-- No logic, no transformation, no error handling beyond request failure.
-- No React.
-
-### `repositories/` — External services
-- Same rules as `api/`, but for third-party systems (Clerk, Supabase Storage, Stripe, etc.).
-- Thin integration layer. No transformation or business logic.
+### `repositories/` — Local & device data sources
+- The data layer. Talks to on-device sources: **SQLite (via `packages/core`)**, the file
+  system (Expo FileSystem — attachments, import/export files), SecureStore, and the billing
+  store (StoreKit / IAP).
+- Thin integration layer. No transformation or business logic — that lives in `packages/core`
+  (data domain rules) or `services/providers/` (UI shaping).
+- A SQLite-backed repository is a thin wrapper over a `core` data function for one feature's
+  tables; it does not write SQL inline. Device-API repositories (FileSystem, SecureStore,
+  StoreKit) wrap the native call and return the response, per `mobile.md §5`.
 - No React.
 
 ### `services/coordinators/` — Orchestration layer
-- Calls `api/` and `repositories/`.
-- Handles errors and returns typed `ApiResponse<T>` to callers.
-- May compose multiple api/repository calls.
+- Calls `repositories/`.
+- Handles errors and returns a typed `Result<T>` to callers. (There is no API; do not call this `ApiResponse`.)
+- May compose multiple repository calls (e.g. create a record and update an index in one flow).
 - Must not depend on React. Must be usable outside React.
 
 ### `services/providers/` — Pure logic
@@ -94,16 +103,16 @@ src/features/{feature}/
 ### `hooks/` — React behavior layer
 - Bridge between React and the rest of the architecture.
 - Used by containers. Expose React-friendly state and actions.
-- May call services, api, repositories, context, and other hooks.
+- May call services, repositories, context, and other hooks.
 - Manage loading, error, and derived state.
 
 **Hook rules:**
 - One hook = one responsibility. Keep scope narrow.
 - Must not return JSX.
 - Must not contain styling logic.
-- Must not contain raw API logic — that belongs in `api/`.
+- Must not contain raw data-access logic — that belongs in `repositories/` (and `packages/core`).
 - Must not become dumping grounds for business logic — move it to `services/providers/`.
-- Must not call `api/` or `repositories/` directly — go through `services/coordinators/`.
+- Must not call `repositories/` directly — go through `services/coordinators/`.
 - If logic doesn't require React, it goes in `services/providers/` or `utils/`.
 - Prefer composition over complexity. Expose clean, minimal interfaces.
 
@@ -114,7 +123,7 @@ src/features/{feature}/
 - Must remain small. Split when growing.
 
 **Container rules:**
-- Must not call `api/` or `repositories/` directly.
+- Must not call `repositories/` directly.
 - Must not contain business logic.
 - Orchestrators, not processors.
 
@@ -137,7 +146,8 @@ src/features/{feature}/
 ### `schemas/` — Data contracts
 - Zod schemas, TypeScript types, and enums.
 - Defines expected shapes of data.
-- Shared across `api/`, `services/coordinators/`, `services/providers/`, and `hooks/`.
+- Shared across `repositories/`, `services/coordinators/`, `services/providers/`, and `hooks/`.
+- Especially important for validating untrusted input: the bundled medication JSON and user-supplied import/export files must be parsed through Zod.
 - No logic — definitions only.
 
 ### `utils/` — Pure helpers
@@ -147,6 +157,10 @@ src/features/{feature}/
 ---
 
 ## 4. Styling
+
+> **Superseded for this project.** This SCSS (`@use` / `var()`) system is the web convention.
+> Mobile has no SCSS — styling here follows `mobile.md §4` (`.styles.ts` + `makeStyles(theme)`
+> off `src/constants/theme.ts`). The section below is retained for reference only; do not apply it.
 
 - Stylesheets are colocated with the file they style — one `.module.scss` per component or container.
 - **No inline styles** (`style={{ ... }}` in JSX) anywhere.
@@ -207,22 +221,25 @@ If a needed token does not exist in the constants files, add it to the appropria
 
 ## 6. Data Fetching
 
-Asynchronous data fetching uses `@tanstack/react-query`. Every custom hook that loads data from `api/` or `repositories/` is built on top of react-query — do not hand-roll `useState` + `useEffect` fetch loops.
+Asynchronous data access uses `@tanstack/react-query`. Every custom hook that reads data from `repositories/` is built on top of react-query — do not hand-roll `useState` + `useEffect` loops. react-query is not network-specific; here the `queryFn` reads on-device SQLite (via a coordinator) instead of hitting a server, and its mutation→invalidation model is what keeps screens in sync after a local write.
 
-### Why react-query
-- Caches queries across components and navigations with per-query staleTime.
-- Dedupes in-flight requests automatically.
-- `placeholderData: keepPreviousData` lets the UI keep showing old data during param-changing refetches, eliminating loading flashes on tab/selector switches.
-- Centralized invalidation on writes: one `invalidateQueries({ queryKey: featureKeys.all })` call refreshes every cached query for a feature.
+### Why react-query (local-first)
+- Caches query results across components and navigations.
+- Centralized invalidation on writes: one `invalidateQueries({ queryKey: featureKeys.all })` after a mutation refreshes every cached query for a feature. **This — not time — is how local data refreshes:** the on-device DB is the only source of truth, so a query is never "stale" until *we* change the data.
+- `placeholderData: keepPreviousData` keeps the UI from flashing when a filter/selector changes the query params.
+
+### Local-first defaults (differ from a networked app)
+- **`staleTime: Infinity`** on reads. There is no server that can change data behind your back; the only way data changes is a local mutation, which you handle with explicit `invalidateQueries`. Do not use a time-based `staleTime` — it would just cause pointless re-reads of SQLite.
+- **`placeholderData: keepPreviousData`** only when query params can change at runtime (filters, selectors, paginated lists). Not required for static reads.
 
 ### Hook convention
 
-Every data-fetching hook must:
+Every data hook must:
 
-1. Call a coordinator, not `api/` or `repositories/` directly.
+1. Call a coordinator, not `repositories/` directly.
 2. Use `useQuery` (for reads) or `useMutation` (for writes).
 3. Pull its query key from a centralized feature-level `queryKeys.ts` factory — never inline key arrays.
-4. Set `staleTime` explicitly (default 60_000 for most read endpoints — do not rely on react-query's 0ms default which causes unnecessary refetches).
+4. Set `staleTime: Infinity` (local data is authoritative — refresh via mutation invalidation, not time).
 5. Set `placeholderData: keepPreviousData` when query params can change at runtime (selectors, filters, paginated lists).
 6. Return a `{ data, loading, error, refetch }` object. Prefer feature-specific names for `data` (e.g. `summary`, `events`, `history`) so containers read naturally.
 7. Throw from `queryFn` on coordinator failure — react-query's `isError` branch only triggers on thrown errors.
@@ -242,7 +259,7 @@ export function useFooBar(fooId: string) {
       return result.data;
     },
     enabled: fooId.length > 0,
-    staleTime: 60_000,
+    staleTime: Infinity,
     placeholderData: keepPreviousData,
   });
 
@@ -272,24 +289,24 @@ This lets a single `invalidateQueries({ queryKey: fooKeys.all })` clear every ca
 
 ### Transformation still belongs in providers
 
-React-query does not change the layer boundaries. API DTO → UI shape mapping still happens in `services/providers/` as pure functions. The `queryFn` should: call the coordinator, which calls `api/`, parses with Zod, and maps via providers. Do not put transformation logic inline in `queryFn`.
+React-query does not change the layer boundaries. DB row → UI shape mapping still happens in `services/providers/` as pure functions. The `queryFn` should: call the coordinator, which calls a repository (which calls `packages/core`), validates with Zod, and maps via providers. Do not put transformation logic inline in `queryFn`.
 
 ### QueryProvider setup
 
-Each app root wraps its tree in a `<QueryProvider>` component that owns a per-render `QueryClient` via `useState(() => new QueryClient(...))` — this is SSR-safe and prevents cross-request state leakage in Next.js App Router.
+The app root wraps its tree in a single `<QueryProvider>` that owns one app-lifetime `QueryClient`. Create it once in module scope (or a `useState(() => new QueryClient(...))` at the root) — there is no SSR/per-request concern on mobile, so a single long-lived client is correct.
 
 ---
 
 ## Hard Rules (never violate)
 
+- There is no `api/` layer — all data access goes through `repositories/` → `packages/core`
 - `app/` renders containers only — no logic, no imports from lower layers
 - No store imports inside components
-- No `api/` or `repository/` calls inside containers — go through hooks
-- No `api/` or `repository/` calls inside hooks — go through coordinators
-- No React in services, utils, api, or repositories
-- No business logic in hooks — move it to services
-- Stylesheets colocate with the file they style — one `.module.scss` per component or container
-- No inline styles (`style={{ ... }}` in JSX)
-- No hardcoded values in SCSS — use `@use` for static values, `var()` for theme-sensitive values
-- Data-fetching hooks must use `@tanstack/react-query` (`useQuery` / `useMutation`) — never raw `useState`/`useEffect` fetch loops
+- No `repository/` calls inside containers — go through hooks
+- No `repository/` calls inside hooks — go through coordinators
+- No React in services, utils, or repositories
+- No business logic in hooks — move it to services (UI shaping) or `packages/core` (domain rules)
+- Styling is governed by `mobile.md §4` (`.styles.ts` + `makeStyles(theme)`) — the SCSS rules in §4 below do not apply to this project
+- Data hooks must use `@tanstack/react-query` (`useQuery` / `useMutation`) — never raw `useState`/`useEffect` loops
+- React-query reads use `staleTime: Infinity` and refresh via mutation `invalidateQueries`, never time-based staleness
 - React-query keys must come from a feature-level `queryKeys.ts` factory — never inlined as raw arrays in hooks
