@@ -8,7 +8,12 @@ export function EntryTypeTabs({ active, onChange }: { active: EntryType; onChang
   const theme = useTheme();
   const styles = makeEntryTypeTabsStyles(theme);
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.scroll}
+      contentContainerStyle={styles.row}
+    >
       {ENTRY_TABS.map((tab) => {
         const selected = tab.type === active;
         return (
