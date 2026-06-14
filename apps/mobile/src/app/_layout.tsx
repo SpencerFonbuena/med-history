@@ -26,6 +26,8 @@ function Gate() {
     <>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="profile/new" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="profile/[id]/region/[code]/new" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="profile/[id]/region/[code]/[entryId]" options={{ presentation: 'modal' }} />
       </Stack>
       <StatusBar style={theme.scheme === 'dark' ? 'light' : 'dark'} />
     </>
