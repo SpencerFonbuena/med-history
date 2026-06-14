@@ -1,10 +1,8 @@
 import { getTheme, type Theme } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/useColorScheme.hook';
+import { useAppearance } from '@/features/settings/context/appearance.provider';
 
-/**
- * The resolved theme for the active color scheme. Pass the result into a
- * `makeStyles(theme)` factory inside a component (see mobile.md §4).
- */
+/** Resolved theme for the active appearance (persisted settings + any live preview). */
 export function useTheme(): Theme {
-  return getTheme(useColorScheme());
+  const { appearance } = useAppearance();
+  return getTheme(appearance.scheme, appearance.sizeLevel);
 }
