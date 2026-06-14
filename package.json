@@ -11,6 +11,6 @@
     "core": "pnpm --filter @med-history/core"
   },
   "devDependencies": {
-    "typescript": "^5.6.3"
+    "typescript": "~5.9.3"
   }
 }
