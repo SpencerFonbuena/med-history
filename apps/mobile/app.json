@@ -36,7 +36,14 @@
         }
       ],
       "expo-sqlite",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "MedHistory uses your photos so you can attach images to a medical entry.",
+          "cameraPermission": "MedHistory uses your camera so you can photograph a result and attach it to a medical entry."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

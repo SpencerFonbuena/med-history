@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ActivityIndicator, FlatList, Modal, Pressable, Text, TextInput, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme.hook';
 import { useMedicationSearch } from '../hooks/useMedicationSearch.hook';
 import { MedicationSearchResult } from './medicationSearchResult.component';
@@ -18,13 +18,17 @@ export function MedicationSearchModal({
 }) {
   const theme = useTheme();
   const styles = makeMedicationSearchModalStyles(theme);
+  // Read the root-measured insets via the hook rather than SafeAreaView: inside a
+  // fullScreen Modal, SafeAreaView re-measures in a separate native hierarchy and
+  // reads zero on first open, leaving the search bar under the notch.
+  const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
   const { results, seeding } = useMedicationSearch(query);
   const trimmed = query.trim();
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
-      <SafeAreaView style={styles.safeArea}>
+      <View style={[styles.safeArea, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <Pressable onPress={onClose}>
             <Text style={styles.cancel}>Cancel</Text>
@@ -63,7 +67,7 @@ export function MedicationSearchModal({
             )}
           />
         )}
-      </SafeAreaView>
+      </View>
     </Modal>
   );
 }

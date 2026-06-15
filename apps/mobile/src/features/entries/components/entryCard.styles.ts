@@ -32,7 +32,7 @@ export const makeEntryCardStyles = (theme: Theme) =>
     title: { color: theme.colors.textPrimary, fontSize: theme.text.callout, fontWeight: '600' },
     date: { color: theme.colors.textSecondary, fontSize: theme.text.footnote, paddingTop: 1 },
 
-    body: { color: theme.colors.textSecondary, fontSize: theme.text.body, lineHeight: 22 },
+    body: { color: theme.colors.textSecondary, fontSize: theme.text.body, lineHeight: theme.text.body * 1.4 },
 
     // Type-specific fields as a labeled grid — a small uppercase label over its
     // value, flowing into one or two columns. Reads like a structured record.

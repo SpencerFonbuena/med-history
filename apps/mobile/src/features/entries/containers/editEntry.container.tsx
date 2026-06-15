@@ -3,6 +3,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/hooks/useTheme.hook';
+import { LiveAttachments } from '@/features/attachments/containers/liveAttachments.container';
 import { useEntry } from '../hooks/useEntry.hook';
 import { useUpdateEntry } from '../hooks/useUpdateEntry.hook';
 import { useDeleteEntry } from '../hooks/useDeleteEntry.hook';
@@ -43,7 +44,7 @@ export function EditEntryContainer() {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
-          await deleteEntry(currentEntry.id);
+          await deleteEntry({ id: currentEntry.id, profileId: currentEntry.profileId });
           router.back();
         },
       },
@@ -75,6 +76,11 @@ export function EditEntryContainer() {
           }}
           initialMedication={initialMedication}
           submitting={saving}
+          attachmentsSlot={
+            entry.type === 'imaging_test'
+              ? <LiveAttachments profileId={entry.profileId} entryId={entry.id} />
+              : undefined
+          }
           onSubmit={async (values, medication) => {
             await updateEntry(entry.id, buildUpdateInput(entry.type, values, medication));
             router.back();

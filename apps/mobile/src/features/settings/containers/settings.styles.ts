@@ -25,7 +25,7 @@ export const makeSettingsStyles = (theme: Theme) =>
     },
     sectionHeader: { gap: 2 },
     sectionTitle: { color: theme.colors.textPrimary, fontSize: theme.text.subtitle, fontWeight: '600' },
-    sectionHint: { color: theme.colors.textSecondary, fontSize: theme.text.footnote, lineHeight: 20 },
+    sectionHint: { color: theme.colors.textSecondary, fontSize: theme.text.footnote, lineHeight: theme.text.footnote * 1.4 },
 
     preview: { alignItems: 'center', gap: theme.spacing.sm, paddingVertical: theme.spacing.sm },
     previewText: { color: theme.colors.textPrimary, fontSize: theme.text.body },

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Platform, Pressable, Text, TextInput, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import type { EntryType } from '@med-history/core';
@@ -28,6 +28,7 @@ export function EntryForm({
   submitting,
   onSubmit,
   onDelete,
+  attachmentsSlot,
 }: {
   type: EntryType;
   initial?: Partial<EntryFormValues>;
@@ -35,6 +36,7 @@ export function EntryForm({
   submitting: boolean;
   onSubmit: (values: EntryFormValues, medication?: MedicationDetails) => void;
   onDelete?: () => void;
+  attachmentsSlot?: React.ReactNode;
 }) {
   const theme = useTheme();
   const styles = makeEntryFormStyles(theme);
@@ -184,6 +186,8 @@ export function EntryForm({
           </View>
         </View>
       )}
+
+      {attachmentsSlot}
 
       {error && <Text style={styles.error}>{error}</Text>}
 

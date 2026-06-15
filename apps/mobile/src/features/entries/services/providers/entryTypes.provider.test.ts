@@ -15,9 +15,9 @@ describe('entryTypes provider', () => {
   it('builds meta only from present fields', () => {
     const e = { doctor: 'Park', diagnosis: null, subtype: 'lab' } as unknown as Entry;
     const meta = entryMeta(e);
-    expect(meta).toContainEqual({ label: 'Dr.', value: 'Park' });
-    expect(meta).toContainEqual({ label: 'Type:', value: 'Lab' });
-    expect(meta.find((m) => m.label === 'Dx:')).toBeUndefined();
+    expect(meta).toContainEqual({ label: 'Doctor', value: 'Park' });
+    expect(meta).toContainEqual({ label: 'Type', value: 'Lab' });
+    expect(meta.find((m) => m.label === 'Diagnosis')).toBeUndefined();
   });
   it('attaches subtype only on imaging_test and drops empty optionals', () => {
     const values = { date: '2026-01-01', title: 'T', body: 'B', doctor: '  ', diagnosis: 'Dx', subtype: 'lab' } as const;
@@ -55,6 +55,6 @@ describe('entryTypes provider', () => {
   });
   it('entryMeta surfaces the strength from details', () => {
     const e = { details: { rxcui: '1', strength: '10 MG' } } as unknown as import('@med-history/core').Entry;
-    expect(entryMeta(e)).toContainEqual({ label: 'Strength:', value: '10 MG' });
+    expect(entryMeta(e)).toContainEqual({ label: 'Strength', value: '10 MG' });
   });
 });
